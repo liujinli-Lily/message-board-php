@@ -1,0 +1,9 @@
+/.git
+/.idea/*
+/.gitignore.swp
+/*.log
+/runtime/*
+/logs/*
+/storage/*
+config.php
+database.php
