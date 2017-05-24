@@ -60,7 +60,7 @@
         }
         $('#login_btn').removeClass('btn-success').addClass('btn-danger').val('登陆中...');
         $.ajax({
-            url: './submitFunction/login/index',
+            url: './submitFunction/login.php/index',
             type: 'POST',
             dataType: 'json',
             data: {'username':username, 'password':password},

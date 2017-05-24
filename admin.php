@@ -20,10 +20,17 @@ if(!isset($_SESSION['username'])){
 <link rel="stylesheet" type="text/css" href="style/style.css" />
 <title>留言管理</title>
 </head>
+<style type="text/css">
+    #guestbook{
+        width: 80%;
+        margin: 0 auto;
+    }
+</style>
 <body>
 <div id="container">
 <div id="guestbook"><!--留言列表-->
 <h3>留言列表</h3>
+<!-- <span>登录名：<?php echo $_SESSION['nickname'] ?></span> -->
 <a href="./submitFunction/login.php/logout?action=logout">注销登录</a>
     <ul class="post-list np-comment-list">
         <!-- <li class="np-post topAll ">
@@ -54,6 +61,7 @@ if(!isset($_SESSION['username'])){
         // 引用相关文件
         require("./conn.php");
         require("./config.php");
+        require('./submitFunction/login.php');
 
         // 确定当前页数 $p 参数
         $p = $_GET['p']?$_GET['p']:1;
@@ -142,7 +150,7 @@ if(!isset($_SESSION['username'])){
         layer.confirm('确认删除此条信息?', {icon: 3, title:'提示'}, function(index){
             //do something
             $.ajax({
-                url: './submitFunction/login/testdelete',
+                url: './submitFunction/delete.php',
                 type: 'POST',
                 dataType: 'json',
                 data: {id: id},
