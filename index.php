@@ -120,7 +120,7 @@
                   <div class="np-post-header">
                     <span class=""><a href="javascript:void(0)" title="<?=$volist['nickname']?>" class="np-user popClick " post_uid="26445173"><?=$volist['nickname']?></a></span>
                     <a href="javascript:void(0)" class="replywho np-icon-reply-weak np-user" style="display:none"></a>
-                    <span class="np-time" data="1495525707"><?=$volist['createtime']?></span>
+                    <span class="np-time" data="1495525707"><?php echo date("Y-m-d H:i:s",$volist['createtime'])?></span>
                   </div>
                   <div class="np-post-content" data-height="5">
                     <p><?=$volist['content']?></p>

@@ -27,10 +27,19 @@ if(!isset($_SESSION['username'])){
     }
 </style>
 <body>
+<?php
+// 引用相关文件
+require("./conn.php");
+require("./config.php");
+require('./submitFunction/login.php');
+if(!session_id()) session_start();
+
+?>
 <div id="container">
 <div id="guestbook"><!--留言列表-->
 <h3>留言列表</h3>
-<!-- <span>登录名：<?php echo $_SESSION['nickname'] ?></span> -->
+<span>登录名：<?php echo $_SESSION['username'] ?></span>
+<input type="hidden" class="j-gobalUser" value="">
 <a href="./submitFunction/login.php/logout?action=logout">注销登录</a>
     <ul class="post-list np-comment-list">
         <!-- <li class="np-post topAll ">
@@ -58,11 +67,6 @@ if(!isset($_SESSION['username'])){
         </li> -->
 
         <?php
-        // 引用相关文件
-        require("./conn.php");
-        require("./config.php");
-        require('./submitFunction/login.php');
-
         // 确定当前页数 $p 参数
         $p = $_GET['p']?$_GET['p']:1;
         // 数据指针
@@ -90,7 +94,8 @@ if(!isset($_SESSION['username'])){
                 <p><?php echo $gb_array['content'] ?></p>
               </div>
               <div class="np-post-footer">
-                <a href="javascript:void(0)" class="np-btn np-btn-reply j-reply">回复</a>
+                <a href="javascript:void(0)" class="np-btn np-btn-reply j-reply" data-replyid="<?php echo $gb_array['id'] ?>">回复</a>
+                <div><?php echo $gb_array['reply'] ?></div>
               </div>
             </div>
             <ul class="children"></ul>
@@ -99,14 +104,20 @@ if(!isset($_SESSION['username'])){
         }   //while循环结束
         ?>
     </ul>
- <!-- <form id="form1" name="form1" method="post" action="reply.php">
-        <p><label for="reply">回复本条留言:</label></p>
-        <textarea id="reply" name="reply" cols="40" rows="5"></textarea>
-        <p>
-            <input name="id" type="hidden" value="" />
-            <input type="submit" name="submit" value="回复留言" />
-        </p>
-    </form> -->
+ <!-- <p><label for="reply">回复本条留言:</label></p> -->
+<!--  <div class="form-horizontal m-t" id="commentForm" >
+   <div class="form-group">
+       <div class="input-group col-sm-12">
+          <textarea id="reply" class="form-control" name="reply" cols="40" rows="5"></textarea>
+       </div>
+   </div>
+   <div class="form-group">
+       <div class="col-sm-8 col-sm-offset-10">
+           <button class="btn btn-primary" type="submit">提交</button>
+
+       </div>
+   </div>
+</div> -->
 <div class="guestbook-list guestbook-page">
     <p>
     <?php
@@ -130,7 +141,7 @@ if(!isset($_SESSION['username'])){
 </div><!--留言列表结束-->
 
 
-</div><!--container-->
+</div>
 </body>
 <script type="text/javascript" src="./js/jquery-2.1.4.min.js"></script>
 <script type="text/javascript" src="./js/bootstrap.js"></script>
@@ -141,8 +152,59 @@ if(!isset($_SESSION['username'])){
 <script type="text/javascript">
     $(".j-reply").click(function(event) {
         /* Act on the event */
+        var reply_id=$(this).data("reply_id"),
+            appendHtml='<div class="form-horizontal m-t j-replyHtml">'+
+                    '<div class="form-group">'+
+                        '<div class="input-group col-sm-12">'+
+                           '<textarea id="reply" class="form-control" name="reply" cols="40" rows="5"></textarea>'+
+                       '</div>'+
+                    '</div>'+
+                    '<div class="form-group">'+
+                        '<div class="col-sm-8 col-sm-offset-10">'+
+                            '<a class="btn btn-primary j-replyBtn" >提交</a>'+
+                            '<input type="hidden" value="'+reply_id+'" class="j-replyId" >'+
+                        '</div>'+
+                    '</div>'+
+                '</div>';
+        if($(this).siblings('.j-replyHtml').length>0){
+            $(this).siblings(".j-replyHtml").remove();
+        }else{
+            $(this).after(appendHtml);
+        }
     });
-
+    $(".np-post-footer").on('click', '.j-replyBtn', function(event) {
+        event.preventDefault();
+        var $parents=$(this).parents('.j-replyHtml'),
+            reply=$parents.find('textarea'),
+            replyId=$parents.find('.j-replyId').val();
+        if(reply.val()==""){
+            swal("回复内容不能为空", "", "error");
+            return false;
+        }else{
+            $.ajax({
+                url: './submitFunction/reply.php',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    reply:reply.val(),
+                    id:replyId
+                },
+                success:function(data){
+                    if(data.code==1){
+                        sweetAlert({
+                            title:"",
+                            text: data.msg,
+                            type: "success",
+                        }, function(){
+                            $parents.remove();
+                        });
+                    }else{
+                        swal(data.msg, "", "error");
+                    }
+                }
+            })
+        }
+    });
     $(".j-delete").click(function(event) {
         /* Act on the event */
         var id = $(this).data('id'),
